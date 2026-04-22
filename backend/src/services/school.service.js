@@ -210,6 +210,94 @@ async function deleteAnnouncement(announcementId) {
   return { id: announcementId };
 }
 
+// ── 图表统计 ────────────────────────────────────────────────────────────────
+
+const TOPIC_LABELS = {
+  academic_pressure: '学业压力',
+  relationship_issues: '情感问题',
+  interpersonal: '人际关系',
+  family_issues: '家庭问题',
+  career_anxiety: '就业焦虑',
+  mental_health: '心理健康',
+  other: '其他',
+};
+
+/**
+ * 各咨询师预约量（饼图数据）
+ */
+async function getCounselorAppointmentStats() {
+  const countRows = await Appointment.findAll({
+    attributes: ['counselorId', [fn('COUNT', col('id')), 'count']],
+    group: ['counselorId'],
+    raw: true,
+  });
+  if (!countRows.length) return [];
+
+  const ids = countRows.map(r => r.counselorId);
+  const users = await User.findAll({
+    where: { id: ids },
+    attributes: ['id', 'username'],
+    include: [{ model: CounselorProfile, as: 'counselorProfile', attributes: ['realName'], required: false }],
+  });
+  const userMap = {};
+  users.forEach(u => { userMap[u.id] = u.toJSON(); });
+
+  return countRows.map(r => {
+    const u = userMap[r.counselorId];
+    const name = u?.counselorProfile?.realName || u?.username || `咨询师${r.counselorId}`;
+    return { name, value: parseInt(r.count) };
+  });
+}
+
+/**
+ * 预约量 Top 10 学生（柱状图数据）
+ */
+async function getStudentAppointmentStats() {
+  const countRows = await Appointment.findAll({
+    attributes: ['studentId', [fn('COUNT', col('id')), 'count']],
+    group: ['studentId'],
+    order: [[fn('COUNT', col('id')), 'DESC']],
+    limit: 10,
+    raw: true,
+  });
+  if (!countRows.length) return [];
+
+  const ids = countRows.map(r => r.studentId);
+  const users = await User.findAll({
+    where: { id: ids },
+    attributes: ['id', 'username'],
+    include: [{ model: StudentProfile, as: 'studentProfile', attributes: ['realName', 'studentNo'], required: false }],
+  });
+  const userMap = {};
+  users.forEach(u => { userMap[u.id] = u.toJSON(); });
+
+  return countRows.map(r => {
+    const u = userMap[r.studentId];
+    const name = u?.studentProfile?.realName || u?.username || `学生${r.studentId}`;
+    const studentNo = u?.studentProfile?.studentNo || '';
+    return { name: studentNo ? `${name}(${studentNo})` : name, count: parseInt(r.count) };
+  });
+}
+
+/**
+ * 咨询话题分布（饼图数据）
+ */
+async function getTopicStats() {
+  const rows = await Appointment.findAll({
+    attributes: [
+      'topic',
+      [fn('COUNT', col('id')), 'count'],
+    ],
+    group: ['topic'],
+    raw: true,
+  });
+
+  return rows.map(r => ({
+    name: TOPIC_LABELS[r.topic] || r.topic || '其他',
+    value: parseInt(r.count),
+  }));
+}
+
 module.exports = {
   getStats,
   getCounselors,
@@ -218,4 +306,7 @@ module.exports = {
   getAnnouncements,
   createAnnouncement,
   deleteAnnouncement,
+  getCounselorAppointmentStats,
+  getStudentAppointmentStats,
+  getTopicStats,
 };

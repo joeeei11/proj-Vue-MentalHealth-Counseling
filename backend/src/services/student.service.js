@@ -72,7 +72,7 @@ async function getCounselors({ keyword } = {}) {
 /**
  * 发起预约
  */
-async function createAppointment(studentId, { counselorId, appointmentDate, startTime, endTime, type, reason }) {
+async function createAppointment(studentId, { counselorId, appointmentDate, startTime, endTime, type, topic, reason }) {
   if (!counselorId || !appointmentDate || !startTime || !endTime) {
     const err = new Error('缺少必要字段：counselorId、appointmentDate、startTime、endTime');
     err.status = 400;
@@ -137,6 +137,7 @@ async function createAppointment(studentId, { counselorId, appointmentDate, star
     startTime,
     endTime,
     type: type || 'offline',
+    topic: topic || 'other',
     reason: reason || null,
   });
   return appointment.toJSON();

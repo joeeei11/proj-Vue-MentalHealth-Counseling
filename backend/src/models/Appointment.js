@@ -45,6 +45,18 @@ const Appointment = sequelize.define(
       type: DataTypes.TEXT,
       defaultValue: null,
     },
+    topic: {
+      type: DataTypes.ENUM(
+        'academic_pressure',
+        'relationship_issues',
+        'interpersonal',
+        'family_issues',
+        'career_anxiety',
+        'mental_health',
+        'other'
+      ),
+      defaultValue: 'other',
+    },
     cancelReason: {
       type: DataTypes.TEXT,
       defaultValue: null,

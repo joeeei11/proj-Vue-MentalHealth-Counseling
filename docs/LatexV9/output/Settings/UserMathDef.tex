@@ -1,0 +1,126 @@
+%------------------------------------------------------------
+%    MathDef.tex   你可以修改或设定自己的数学公式环境定义
+%------------------------------------------------------------
+
+\usepackage[electronic]{ifsym}
+\usepackage{indentfirst}
+\usepackage{latexsym}
+
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{mathrsfs}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amscd}
+\usepackage{pifont}
+\usepackage[mathscr]{euscript}
+
+\usepackage[all]{xy}  % 画交换图
+
+
+\newcommand{\op}[1]{\mathcal{#1}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Complex}{\mathbb{C}}
+\newcommand{\Proj}{\mathbb{P}}
+\newcommand{\field}[1]{\mathbb{#1}}
+\newcommand{\cc}[1]{\overline{#1}}   % complex congugate
+\newcommand{\hc}[1]{{#1}^{\dagger}}  % Hermitian congugate
+
+\DeclareMathOperator{\Ker}{\mathrm{Ker}}
+\DeclareMathOperator{\Image}{\mathrm{Im}}
+\DeclareMathOperator{\argmin}{\mathrm{argmin}}
+\DeclareMathOperator{\SSE}{\mathrm{SSE}}
+\DeclareMathOperator{\dist}{\mathrm{dist}}
+\DeclareMathOperator*{\union}{\cup}
+\DeclareMathOperator{\polydeg}{\mathrm{deg}}
+\DeclareMathOperator{\lspan}{\mathrm{span}}
+\DeclareMathOperator{\diag}{\mathrm{diag}}
+\DeclareMathOperator{\rank}{\mathrm{rank}}
+\DeclareMathOperator{\trace}{\mathrm{tr}}
+\DeclareMathOperator{\Dim}{\mathrm{dim}}
+\DeclareMathOperator{\Dom}{\mathrm{Dom}}
+\DeclareMathOperator{\Range}{\mathrm{Range}}
+\DeclareMathOperator{\Null}{\mathrm{Null}}
+\DeclareMathOperator{\FFT}{\mathrm{FFT}}
+\DeclareMathOperator{\DFT}{\mathrm{DFT}}
+\DeclareMathOperator{\id}{\mathbbm{1}}
+\DeclareMathOperator{\dif}{\mathrm{d}}
+\DeclareMathOperator{\Hom}{\mathrm{Hom}}
+\DeclareMathOperator{\sign}{\mathrm{sign}}
+\DeclareMathOperator{\Ann}{\mathrm{Ann}}
+\DeclareMathOperator{\dB}{\mathrm{dB}}
+\DeclareMathOperator{\GF}{\mathbb{GF}}
+\DeclareMathOperator{\sinc}{\mathrm{sinc}}
+\DeclareMathOperator{\rect}{\mathrm{rect}}
+\DeclareMathOperator{\erf}{\mathrm{erf}}
+\DeclareMathOperator{\erfc}{\mathrm{erfc}}
+\DeclareMathOperator{\Q}{\mathrm{Q}}
+\DeclareMathOperator{\const}{\mathrm{const}}
+
+\newcommand{\atan}{\mathrm{atan2}}
+\newcommand{\mapstset}[2]{\left.{#1}\right|_{#2}}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\To}{\longrightarrow}
+\newcommand{\mi}{\mathrm{i}}
+\newcommand{\mj}{\mathrm{j}}
+\newcommand{\mk}{\mathrm{k}}
+\newcommand{\me}{\mathrm{e}}
+
+\newcommand{\fracode}[2]{\frac{\dif {#1}}{\dif {#2}}}
+\newcommand{\pdif}[1]{\mathrm{D}_{#1}}
+\newcommand{\fracpde}[2]{\frac{\partial {#1}}{\partial {#2}}}
+\newcommand{\fracpderow}[2]{\partial {#1}/\partial {#2}}
+\newcommand{\fracoderow}[2]{\dif {#1}/\dif {#2}}
+\newcommand{\fracpdemix}[3]{\frac{\partial^2 {#1}}{\partial {#2} \partial {#3}}}
+\newcommand{\lap}[2]{\frac{\partial^2 {#1}}{\partial {#2}^2}}
+\newcommand{\laprow}[2]{\partial^2 {#1}/\partial {#2}^2}
+\newcommand{\secode}[2]{\frac{\dif^2 {#1}}{\dif {#2}^2}}
+\newcommand{\set}[1]{\left\{ #1 \right\}}
+\newcommand{\setind}[1]{\bf{1}_{#1}}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\absvec}[1]{\left| \bf{#1} \right|}
+\newcommand{\ket}[1]{|#1 \rangle}
+\newcommand{\bra}[1]{\langle #1 |}
+\newcommand{\braket}[2]{ \langle #1 |  #2 \rangle}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\normF}[1]{\norm{#1}_{\small{F}}}
+\newcommand{\trsp}[1]{{#1}^{\small{\textsf{T}}}}
+\newcommand{\itrsp}[1]{{#1}^{-\small{\textsf{T}}}}
+\newcommand{\htrsp}[1]{{#1}^{\small{\textsf{H}}}}
+\newcommand{\inv}[1]{#1^{-1}}
+\newcommand{\ginv}[1]{#1^+}
+\newcommand{\tinv}[1]{{#1}^{-\small{\textsf{T}}}}
+
+\newcommand{\mean}[1]{\overline{#1}}
+\newcommand{\card}[1]{\left| #1 \right|}
+\newcommand{\mfloor}[1]{ \left\lfloor {#1} \right\rfloor }
+\newcommand{\mpair}[2]{\left({#1}, {#2} \right)}
+\newcommand{\mtrip}[3]{\left({#1}; {#2}, {#3}\right)}
+\newcommand{\pairmap}[2]{\left\langle {#1}, {#2}\right\rangle}
+\newcommand{\triplet}[3]{\left({#1}, {#2}, {#3}\right)}
+\newcommand{\seq}[1]{\left\langle {#1} \right\rangle}
+
+\renewcommand{\bf}[1]{\mathbf{#1}}
+\newcommand{\hompt}[1]{\bf{#1}}
+\renewcommand{\vec}[1]{\bm{#1}}
+\newcommand{\mat}[1]{\bm{#1}}
+\newcommand{\hmat}[1]{\mathbf{#1}}
+
+\DeclareMathOperator{\Prob}{\mathrm{Pr}}
+\DeclareMathOperator{\E}{\mathrm{E}}
+\DeclareMathOperator{\Cov}{\mathrm{Cov}}
+\DeclareMathOperator{\D}{\mathrm{Var}}
+\newcommand{\Expt}[1]{\E\set{#1}}
+\newcommand{\Var}[1]{\D\set{#1}}
+\newcommand{\err}{\epsilon}
+
+\newcommand{\intset}[2]{\left\{#1,\cdots,#2\right\}}
+
+\newcommand{\scrdm}[2]{{#1}_{#2}}
+\newcommand{\scrum}[2]{{#1}^{#2}}
+\newcommand{\scrudt}[3]{{#1}^{\mathrm{#2}}_\mathrm{#3}}
+\newcommand{\scrdt}[2]{{#1}_{\mathrm{#2}}}
+\newcommand{\scrut}[2]{{#1}^{\mathrm{#2}}}
+

@@ -1,0 +1,45 @@
+%%==================================%%
+%%          生成本科生标题           %%
+%%			    无需修改		    %%
+%%==================================%%
+\makecntitle
+%%==================================%%
+%%             中文摘要             %%
+%%==================================%%
+\abstract
+{
+针对大学生心理健康问题日益突出、传统线下咨询存在预约繁琐、求助门槛高、档案管理分散等痛点，设计并实现了一套基于 Web 的大学生心理健康咨询平台。该平台旨在借助信息化手段规范高校心理咨询服务流程，降低学生主动求助的心理门槛，同时为咨询师和学校管理者提供高效的数字化工具。
+
+系统采用前后端分离架构，前端基于 Vue~3 框架结合 Composition API、Pinia 状态管理和 Vue Router~4 构建，后端以 Node.js + Express 为基础，通过 Sequelize ORM 与 MySQL~8 数据库交互，使用 JSON Web Token 实现无状态认证，并以 bcrypt 对用户密码进行哈希加密存储。系统集成 DeepSeek 大语言模型，采用 Server-Sent Events 技术实现 AI 心理助手的流式对话，使交互体验接近实时会话。
+
+平台涵盖三端功能：学生端支持浏览咨询师、在线预约、AI 心理助手对话、公告查阅及咨询评价；咨询师端支持预约审核、会话记录管理与案例笔记撰写；学校管理端支持咨询师档案管理、数据统计分析及校园公告发布。通过统一的 RESTful API 和角色权限中间件，三端共享同一后端服务，保证数据一致性与权限隔离。
+
+实践表明，该平台有效整合了在线预约、AI 智能对话与数据统计三大核心能力，为高校心理健康服务的数字化转型提供了可落地的技术方案。
+}
+
+%% ==== 关键词
+\keywords{心理健康咨询；Web 应用；Vue~3；AI 心理助手；流式对话}
+
+%%==================================%%
+%%          生成本科生标题           %%
+%%			    无需修改		    %%
+%%==================================%%
+\makeentitle
+
+%%==================================%%
+%%             英文摘要             %%
+%%==================================%%
+\abstract[Abstract]
+{
+In response to the growing prominence of mental health issues among college students, and the drawbacks of traditional offline counseling---including cumbersome appointment procedures, high barriers to help-seeking, and fragmented case management---a web-based mental health counseling platform for university students was designed and implemented. The platform aims to standardize psychological counseling services in higher education institutions through digital means, lower the psychological threshold for students to seek help, and provide efficient tools for counselors and school administrators.
+
+The system adopts a front-end and back-end separated architecture. The front end is built with the Vue~3 framework, leveraging the Composition API, Pinia state management, and Vue Router~4. The back end is powered by Node.js and Express, interacting with a MySQL~8 database through the Sequelize ORM. JSON Web Token is employed for stateless authentication, and bcrypt is used to hash and securely store user passwords. The system integrates the DeepSeek large language model and implements real-time streaming dialogue for the AI psychological assistant using Server-Sent Events (SSE), delivering an interactive experience close to live conversation.
+
+The platform encompasses three user portals. The student portal supports browsing counselor profiles, making online appointments, engaging with the AI assistant, reading announcements, and submitting session feedback. The counselor portal supports appointment review, session record management, and case note writing. The school administration portal supports counselor profile management, statistical data analysis, and campus announcement publishing. Through a unified RESTful API and role-based authorization middleware, all three portals share a single backend service, ensuring data consistency and permission isolation.
+
+Practical evaluation demonstrates that the platform effectively integrates online appointment scheduling, AI-powered dialogue, and data analytics, providing a deployable technical solution for the digital transformation of mental health services in higher education.
+}
+
+% ==== 英文关键词
+\keywords[Key words]{mental health counseling; web application; Vue~3; AI psychological assistant; streaming conversation}
+

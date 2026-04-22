@@ -14,4 +14,9 @@ export const schoolApi = {
   getAnnouncements: (params) => request.get('/api/v1/school/announcements', { params }),
   createAnnouncement: (data) => request.post('/api/v1/school/announcements', data),
   deleteAnnouncement: (id) => request.delete(`/api/v1/school/announcements/${id}`),
+
+  // 图表统计
+  getCounselorAppointmentStats: () => request.get('/api/v1/school/chart/counselor-appointments'),
+  getStudentAppointmentStats: () => request.get('/api/v1/school/chart/student-appointments'),
+  getTopicStats: () => request.get('/api/v1/school/chart/topic-distribution'),
 }

@@ -87,6 +87,19 @@
             </div>
 
             <div class="form-item">
+              <label>咨询话题</label>
+              <select v-model="bookForm.topic">
+                <option value="academic_pressure">学业压力</option>
+                <option value="relationship_issues">情感问题</option>
+                <option value="interpersonal">人际关系</option>
+                <option value="family_issues">家庭问题</option>
+                <option value="career_anxiety">就业焦虑</option>
+                <option value="mental_health">心理健康</option>
+                <option value="other">其他</option>
+              </select>
+            </div>
+
+            <div class="form-item">
               <label>预约说明（选填）</label>
               <textarea v-model="bookForm.reason" rows="3" placeholder="简单描述您的情况或需求..."></textarea>
             </div>
@@ -127,6 +140,7 @@ const bookForm = reactive({
   date: '',
   slot: '',
   type: 'offline',
+  topic: 'other',
   reason: '',
 })
 
@@ -167,6 +181,7 @@ function openModal(c) {
   bookForm.date = ''
   bookForm.slot = ''
   bookForm.type = 'offline'
+  bookForm.topic = 'other'
   bookForm.reason = ''
   bookError.value = ''
   modalOpen.value = true
@@ -204,6 +219,7 @@ async function submitBook() {
       startTime,
       endTime,
       type: bookForm.type,
+      topic: bookForm.topic,
       reason: bookForm.reason || undefined,
     })
     closeModal()

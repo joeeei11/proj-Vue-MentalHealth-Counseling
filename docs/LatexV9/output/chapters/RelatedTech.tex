@@ -1,0 +1,64 @@
+\chapter{相关技术与理念介绍}
+
+本章对系统所采用的主要技术栈进行简要梳理，涵盖前端框架、后端运行环境、数据库、身份认证以及 AI 流式通信等方面，旨在为后续章节的设计与实现说明提供技术背景。
+
+\section{Vue 3 与 Composition API}
+
+Vue 3 是目前国内前端开发领域广泛采用的渐进式 JavaScript 框架\cite{vuejs3docs}。与 Vue 2 依赖 \texttt{Object.defineProperty} 进行响应式追踪不同，Vue 3 基于 ECMAScript 2015 的 \texttt{Proxy} 对象重写了响应式系统，使其能够拦截对象属性的任意读写操作，从而在不修改原始对象的情况下建立依赖关系，并在数据变更时精确触发视图更新。
+
+Composition API 是 Vue 3 在代码组织模式上的重要创新。相较于 Options API 将逻辑强制分散在 \texttt{data}、\texttt{computed}、\texttt{methods} 等固定选项中的做法，Composition API 允许开发者围绕业务关注点将相关逻辑集中在同一位置，并封装为可复用的 Composable 函数。本系统在学生端 AI 对话、咨询师端预约审核等逻辑较复杂的模块中均采用了 Composition API，以改善代码的可读性和可维护性。
+
+\section{Pinia 状态管理}
+
+Pinia 是 Vue 3 官方推荐的全局状态管理库\cite{piniadocs}。相较于 Vuex 4 中较为繁琐的 \texttt{mutations}/\texttt{actions} 双层写法，Pinia 以更扁平的 Store 定义方式将 \texttt{state}、\texttt{getters} 和 \texttt{actions} 统一归入同一个 \texttt{defineStore} 调用，并原生支持 TypeScript 类型推导。
+
+本系统通过 Pinia 的 \texttt{useAuthStore} 对登录用户信息（用户名、角色、JWT Token）进行集中存储，路由守卫和 Axios 拦截器均从该 Store 读取 Token，从而保证全局认证状态的统一来源。
+
+\section{Node.js 与 Express}
+
+Node.js 是基于 Chrome V8 引擎构建的服务端 JavaScript 运行时\cite{cantelon2018}。它采用事件驱动、非阻塞 I/O 的执行模型：当系统发起数据库查询、文件读取或外部 API 调用等耗时操作时，Node.js 主线程不会进入等待，而是将回调注册到事件循环，待操作完成后再调度执行。这一机制使单进程 Node.js 服务在面对大量并发 I/O 请求时仍能保持较高的吞吐量，尤其适合本系统中 AI 流式对话所需的 SSE 长连接场景。
+
+Express 是基于 Node.js 的轻量级 Web 框架\cite{hahn2016}，通过中间件机制对请求处理流程进行模块化组织。本系统利用 Express 的路由拆分能力，将学生端、咨询师端和管理端接口分别注册到独立的路由文件，再统一挂载到应用实例，从而实现低耦合的模块化架构。
+
+\section{Sequelize ORM 与 MySQL}
+
+\subsection{Sequelize ORM}
+
+Sequelize 是适配 Node.js 的关系型数据库 ORM（对象关系映射）框架\cite{seqdocs}，支持 MySQL、PostgreSQL 等主流数据库。它将数据表映射为 JavaScript 类，将行记录映射为对象实例，使开发者可以用面向对象的方式编写数据库交互逻辑，而无需手动拼接 SQL 语句。所有查询参数通过内部参数化处理传递给数据库驱动，从框架层面消除了 SQL 注入风险。
+
+本系统借助 Sequelize 的关联方法（\texttt{hasOne}、\texttt{hasMany}、\texttt{belongsTo}）声明外键关系，ORM 在同步表结构时会自动生成对应的外键约束。同时，统一配置 \texttt{underscored: true} 实现 JavaScript 端 camelCase 字段名与数据库端 snake\_case 列名的双向自动转换。
+
+\subsection{MySQL 8}
+
+MySQL 8 是系统选用的关系型数据库管理系统\cite{mysql80docs}，具备完善的 ACID 事务支持。系统中将所有数据表的字符集统一设置为 \texttt{utf8mb4}，排序规则采用 \texttt{utf8mb4\_unicode\_ci}，以确保中文内容及 Emoji 字符的无损存取。此外，针对 \texttt{users.username}、\texttt{appointments.student\_id} 等高频查询字段建立了相应索引，以提升列表查询的响应速度。
+
+\section{JWT 身份认证}
+
+JSON Web Token（JWT）是一种基于 JSON 的开放标准（RFC 7519）\cite{jones2015}，用于在各方之间以紧凑的方式安全地传递信息。JWT 由 Header、Payload 和 Signature 三部分构成，服务端持有密钥对 Token 进行签名；客户端每次请求时在 \texttt{Authorization} 头中携带 Token，服务端验签通过后即可从 Payload 中直接读取用户 \texttt{id} 与 \texttt{role} 字段，无需查询数据库，因此具有无状态、易水平扩展的优势。
+
+本系统基于 \texttt{jsonwebtoken} 库实现 Token 的签发与验证，Token 有效期设置为 7 天。\texttt{authMiddleware} 负责提取并验证 Token，\texttt{roleGuard} 中间件在此基础上进一步校验用户角色，二者以链式方式保护各端受保护接口。
+
+\section{SSE 流式通信与 DeepSeek API}
+
+\subsection{Server-Sent Events}
+
+Server-Sent Events（SSE）是 HTML5 规范中定义的服务端推送技术\cite{whatwg2023}，允许服务器通过一条持久的 HTTP 连接向客户端持续推送文本事件。与 WebSocket 相比，SSE 仅支持服务端到客户端的单向数据流，但协议实现更简单，对代理和负载均衡的兼容性更好，更适合 AI 对话回复这类单向流式输出场景。
+
+服务端通过将响应头 \texttt{Content-Type} 设置为 \texttt{text/event-stream} 建立 SSE 通道；每个事件以 \texttt{data: \ldots\textbackslash n\textbackslash n} 格式推送；前端通过 \texttt{fetch} + \texttt{ReadableStream} 或 \texttt{EventSource} API 逐块读取响应，从而实现"打字机效果"的逐词显示。
+
+\subsection{DeepSeek 大语言模型 API}
+
+DeepSeek 是深度求索公司推出的大语言模型系列\cite{deepseek2024}，其 API 接口规范与 OpenAI Chat Completions API 保持兼容，支持流式（\texttt{stream: true}）和非流式两种调用模式。在流式模式下，模型每生成若干 Token 即返回一个 SSE 数据块，内容字段为 \texttt{choices[0].delta.content}，传输结束时发送 \texttt{[DONE]} 标记。
+
+本系统将所有 DeepSeek API 调用封装于 \texttt{services/ai.service.js}，通过专门设计的系统提示词引导模型扮演专业心理助手角色，并对严重心理危机情形进行专项处理，确保 AI 助手始终将用户引导至专业渠道。
+
+
+\section{Apache ECharts 数据可视化}
+
+Apache ECharts 是百度开源、目前由 Apache 软件基金会维护的前端数据可视化库\cite{echarts2018}，以纯 JavaScript 实现，基于 HTML5 Canvas 或 SVG 进行渲染，支持折线图、柱状图、饼图、散点图等数十种图表类型，并提供完善的交互与动效配置能力。
+
+本系统在学校管理端的数据统计模块中引入 ECharts，用于呈现三类可视化图表：各咨询师预约量环形饼图、学生预约量 Top 10 柱状图，以及咨询话题分布环形饼图。相关数据由后端聚合后以 JSON 数组的形式返回，前端通过 \texttt{echarts.init()} 初始化图表实例并调用 \texttt{setOption()} 完成渲染，整个集成过程无需引入额外的 Vue 包装组件。
+
+\section*{本章小结}
+
+本章对系统所采用的关键技术进行了简要梳理：前端以 Vue 3 + Composition API 构建响应式单页应用，Pinia 负责全局状态管理，ECharts 提供数据可视化能力；后端依托 Node.js 的非阻塞 I/O 模型与 Express 框架提供 RESTful API 服务；Sequelize ORM 简化了数据库操作并消除 SQL 注入风险，MySQL 8 保障数据的可靠存储；JWT 实现了无状态的三端身份认证；SSE 技术配合 DeepSeek API 支撑了 AI 对话的流式输出能力。这些技术的组合选型共同为本系统的设计与实现提供了技术基础，后续章节将在此基础上展开系统架构与功能实现的详细说明。

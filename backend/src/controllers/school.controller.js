@@ -41,6 +41,21 @@ async function deleteAnnouncement(req, res) {
   return success(res, result, '公告已删除');
 }
 
+async function getCounselorAppointmentStats(req, res) {
+  const result = await schoolService.getCounselorAppointmentStats();
+  return success(res, result);
+}
+
+async function getStudentAppointmentStats(req, res) {
+  const result = await schoolService.getStudentAppointmentStats();
+  return success(res, result);
+}
+
+async function getTopicStats(req, res) {
+  const result = await schoolService.getTopicStats();
+  return success(res, result);
+}
+
 module.exports = {
   getStats,
   getCounselors,
@@ -49,4 +64,7 @@ module.exports = {
   getAnnouncements,
   createAnnouncement,
   deleteAnnouncement,
+  getCounselorAppointmentStats,
+  getStudentAppointmentStats,
+  getTopicStats,
 };

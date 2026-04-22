@@ -28,4 +28,13 @@ router.post('/announcements', asyncHandler(schoolController.createAnnouncement))
 // DELETE /api/v1/school/announcements/:id     — 删除公告
 router.delete('/announcements/:id', asyncHandler(schoolController.deleteAnnouncement));
 
+// GET  /api/v1/school/chart/counselor-appointments  — 各咨询师预约量（饼图）
+router.get('/chart/counselor-appointments', asyncHandler(schoolController.getCounselorAppointmentStats));
+
+// GET  /api/v1/school/chart/student-appointments    — 学生预约量 Top10（柱状图）
+router.get('/chart/student-appointments', asyncHandler(schoolController.getStudentAppointmentStats));
+
+// GET  /api/v1/school/chart/topic-distribution      — 话题分布（饼图）
+router.get('/chart/topic-distribution', asyncHandler(schoolController.getTopicStats));
+
 module.exports = router;

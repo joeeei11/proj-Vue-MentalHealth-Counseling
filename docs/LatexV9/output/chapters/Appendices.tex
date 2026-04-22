@@ -1,0 +1,147 @@
+\appendices
+\section{系统环境配置与部署说明}
+
+\subsection{后端环境搭建}
+
+本系统后端基于 Node.js 20 LTS + Express 4 开发，以下为本地环境的完整搭建步骤。
+
+\textbf{（1）安装 Node.js}
+
+从 \texttt{https://nodejs.org/} 下载并安装 Node.js 20 LTS 版本，安装完成后验证：
+
+\begin{lstlisting}[language=bash, caption={验证 Node.js 安装}]
+node -v   # 应输出 v20.x.x
+npm  -v   # 应输出 10.x.x
+\end{lstlisting}
+
+\textbf{（2）安装后端依赖}
+
+\begin{lstlisting}[language=bash, caption={安装后端依赖包}]
+cd backend
+npm install
+\end{lstlisting}
+
+\texttt{package.json} 核心依赖清单如表~\ref{tab:A-1}~所示。
+
+\begin{table}[H]
+    \centering
+    \caption{后端核心依赖包清单}
+    \label{tab:A-1}
+    \begin{tabular}{lll}
+        \hline
+        包名 & 版本 & 说明 \\
+        \hline
+        express & \^{}4.18.2 & Web 框架 \\
+        sequelize & \^{}6.35.2 & ORM 框架 \\
+        mysql2 & \^{}3.6.5 & MySQL 驱动 \\
+        jsonwebtoken & \^{}9.0.2 & JWT 签发与验证 \\
+        bcryptjs & \^{}2.4.3 & 密码哈希 \\
+        cors & \^{}2.8.5 & 跨域请求处理 \\
+        dotenv & \^{}16.4.1 & 环境变量加载 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\textbf{（3）配置环境变量}
+
+在 \texttt{backend/} 目录下创建 \texttt{.env} 文件（参照 \texttt{.env.example}）：
+
+\begin{lstlisting}[language=bash, caption={后端 .env 配置示例}]
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=mental_health
+DB_USER=root
+DB_PASSWORD=your_db_password
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN=7d
+DEEPSEEK_API_KEY=your_deepseek_api_key
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+PORT=3000
+\end{lstlisting}
+
+\textbf{（4）启动后端服务}
+
+\begin{lstlisting}[language=bash, caption={启动后端开发服务器}]
+npm run dev
+\end{lstlisting}
+
+后端服务默认运行于 \texttt{http://localhost:3000}。
+
+
+\subsection{前端环境搭建}
+
+本系统前端基于 Vue~3 + Vite + Pinia 开发。
+
+\textbf{（1）安装前端依赖}
+
+\begin{lstlisting}[language=bash, caption={安装前端依赖包}]
+cd frontend
+npm install
+\end{lstlisting}
+
+\texttt{package.json} 核心依赖清单如表~\ref{tab:A-2}~所示。
+
+\begin{table}[H]
+    \centering
+    \caption{前端核心依赖包清单}
+    \label{tab:A-2}
+    \begin{tabular}{lll}
+        \hline
+        包名 & 版本 & 说明 \\
+        \hline
+        vue & \^{}3.4.x & 前端核心框架 \\
+        vue-router & \^{}4.2.x & 单页路由管理 \\
+        pinia & \^{}2.1.x & 状态管理 \\
+        axios & \^{}1.6.x & HTTP 客户端 \\
+        vite & \^{}5.0.x & 构建工具 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\textbf{（2）配置前端环境变量}
+
+在 \texttt{frontend/} 目录下创建 \texttt{.env} 文件：
+
+\begin{lstlisting}[language=bash, caption={前端 .env 配置}]
+VITE_API_BASE_URL=http://localhost:3000
+\end{lstlisting}
+
+\textbf{（3）启动前端开发服务器}
+
+\begin{lstlisting}[language=bash, caption={启动前端开发服务器}]
+npm run dev
+\end{lstlisting}
+
+前端默认运行于 \texttt{http://localhost:5173}。
+
+\textbf{（4）生产环境构建}
+
+\begin{lstlisting}[language=bash, caption={生产构建}]
+npm run build
+\end{lstlisting}
+
+构建产物输出至 \texttt{dist/} 目录，可由 Nginx 或 Node.js 静态服务托管。
+
+
+\section{数据库初始化说明}
+
+\subsection{创建数据库}
+
+使用 MySQL 8 客户端执行以下命令创建数据库：
+
+\begin{lstlisting}[language=SQL, caption={创建数据库}]
+CREATE DATABASE mental_health
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+\end{lstlisting}
+
+\subsection{执行 Migration 脚本}
+
+数据库表结构通过 \texttt{database/migrations/} 目录下按序号排列的 SQL 脚本管理。按编号顺序在 \texttt{mental\_health} 数据库中依次执行各脚本：
+
+\begin{lstlisting}[language=bash, caption={执行 Migration 脚本}]
+mysql -u root -p mental_health < database/migrations/001_init.sql
+\end{lstlisting}
+
+所有 Migration 脚本均采用幂等写法（\texttt{CREATE TABLE IF NOT EXISTS} 等），可重复执行而不产生副作用。执行完成后，启动后端服务，Sequelize 将在首次运行时通过模型同步完成剩余的表结构校验。
+

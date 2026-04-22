@@ -9,9 +9,12 @@ export const counselorApi = {
   getAppointments: (params) => request.get('/api/v1/counselor/appointments', { params }),
   updateAppointmentStatus: (id, data) =>
     request.put(`/api/v1/counselor/appointments/${id}`, data),
+  setMeetingLink: (id, data) =>
+    request.put(`/api/v1/counselor/appointments/${id}/meeting-link`, data),
 
   // 会话管理
   getSessions: (params) => request.get('/api/v1/counselor/sessions', { params }),
+  getSession: (id) => request.get(`/api/v1/counselor/sessions/${id}`),
   createSession: (data) => request.post('/api/v1/counselor/sessions', data),
   endSession: (id) => request.put(`/api/v1/counselor/sessions/${id}`),
 

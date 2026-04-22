@@ -125,6 +125,30 @@ async function updateAppointment(counselorId, appointmentId, { action, cancelRea
   return appointment.toJSON();
 }
 
+/**
+ * 设置/更新会议链接（仅线上预约）
+ */
+async function setMeetingLink(counselorId, appointmentId, meetingLink) {
+  const appointment = await Appointment.findByPk(appointmentId);
+  if (!appointment) {
+    const err = new Error('预约不存在');
+    err.status = 404;
+    throw err;
+  }
+  if (appointment.counselorId !== counselorId) {
+    const err = new Error('无权操作此预约');
+    err.status = 403;
+    throw err;
+  }
+  if (appointment.type !== 'online') {
+    const err = new Error('仅线上预约可设置会议链接');
+    err.status = 400;
+    throw err;
+  }
+  await appointment.update({ meetingLink: meetingLink || null });
+  return appointment.toJSON();
+}
+
 // ── 会话管理 ────────────────────────────────────────────────────────────────
 
 /**
@@ -168,6 +192,39 @@ async function getSessions(counselorId, { status, page = 1, pageSize = 10 } = {}
     pageSize: limit,
     list: rows.map(r => r.toJSON()),
   };
+}
+
+/**
+ * 获取单个会话详情
+ */
+async function getSession(counselorId, sessionId) {
+  const session = await Session.findOne({
+    where: { id: sessionId, counselorId },
+    include: [
+      {
+        model: User,
+        as: 'student',
+        attributes: ['id', 'username', 'avatarUrl'],
+        include: [{
+          model: StudentProfile,
+          as: 'studentProfile',
+          attributes: ['realName'],
+        }],
+      },
+      {
+        model: Appointment,
+        as: 'appointment',
+        attributes: ['appointmentDate', 'startTime', 'endTime', 'type'],
+        required: false,
+      },
+    ],
+  });
+  if (!session) {
+    const err = new Error('会话不存在或无权访问');
+    err.status = 404;
+    throw err;
+  }
+  return session.toJSON();
 }
 
 /**
@@ -312,7 +369,9 @@ module.exports = {
   updateProfile,
   getAppointments,
   updateAppointment,
+  setMeetingLink,
   getSessions,
+  getSession,
   createSession,
   endSession,
   createNote,

@@ -117,6 +117,13 @@ const routes = [
     ],
   },
 
+  // 视频通话（全屏，无侧边栏，counselor/student 均可访问）
+  {
+    path: '/video/:appointmentId',
+    name: 'VideoCall',
+    component: () => import('@/views/VideoCall.vue'),
+  },
+
   // 兜底
   {
     path: '/:pathMatch(.*)*',

@@ -36,6 +36,11 @@ async function createAnnouncement(req, res) {
   return success(res, result, '公告已创建', 201);
 }
 
+async function updateAnnouncement(req, res) {
+  const result = await schoolService.updateAnnouncement(parseInt(req.params.id), req.body);
+  return success(res, result, '公告已更新');
+}
+
 async function deleteAnnouncement(req, res) {
   const result = await schoolService.deleteAnnouncement(parseInt(req.params.id));
   return success(res, result, '公告已删除');
@@ -63,6 +68,7 @@ module.exports = {
   updateCounselorStatus,
   getAnnouncements,
   createAnnouncement,
+  updateAnnouncement,
   deleteAnnouncement,
   getCounselorAppointmentStats,
   getStudentAppointmentStats,

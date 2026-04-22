@@ -5,7 +5,8 @@
       <button class="back-btn" @click="router.push('/counselor/sessions')">← 返回会话列表</button>
     </div>
 
-    <div v-if="!session" class="state-text">
+    <div v-if="loadingSession" class="state-text">加载中...</div>
+    <div v-else-if="!session" class="state-text">
       会话数据不可用，请从<RouterLink to="/counselor/sessions" class="inline-link">会话列表</RouterLink>重新进入。
     </div>
 
@@ -142,8 +143,8 @@ const router = useRouter()
 
 const sessionId = route.params.id
 
-// Load session from navigation state (passed via router.push state)
 const session = ref(history.state?.session || null)
+const loadingSession = ref(false)
 
 const loadingNotes = ref(false)
 const notes = ref([])
@@ -246,7 +247,22 @@ async function confirmEnd() {
   }
 }
 
-onMounted(loadNotes)
+async function loadSession() {
+  loadingSession.value = true
+  try {
+    const res = await counselorApi.getSession(sessionId)
+    session.value = res.data
+  } catch {
+    // session stays null, error message shown in template
+  } finally {
+    loadingSession.value = false
+  }
+}
+
+onMounted(async () => {
+  if (!session.value) await loadSession()
+  await loadNotes()
+})
 </script>
 
 <style scoped>

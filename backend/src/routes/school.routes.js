@@ -25,6 +25,9 @@ router.get('/announcements', asyncHandler(schoolController.getAnnouncements));
 // POST /api/v1/school/announcements           — 创建公告
 router.post('/announcements', asyncHandler(schoolController.createAnnouncement));
 
+// PUT    /api/v1/school/announcements/:id     — 编辑/发布公告
+router.put('/announcements/:id', asyncHandler(schoolController.updateAnnouncement));
+
 // DELETE /api/v1/school/announcements/:id     — 删除公告
 router.delete('/announcements/:id', asyncHandler(schoolController.deleteAnnouncement));
 

@@ -19,8 +19,14 @@ router.get('/appointments', asyncHandler(counselorController.getAppointments));
 // PUT  /api/v1/counselor/appointments/:id — 确认/拒绝预约
 router.put('/appointments/:id', asyncHandler(counselorController.updateAppointment));
 
+// PUT  /api/v1/counselor/appointments/:id/meeting-link — 设置/更新会议链接
+router.put('/appointments/:id/meeting-link', asyncHandler(counselorController.setMeetingLink));
+
 // GET  /api/v1/counselor/sessions      — 历史会话列表
 router.get('/sessions', asyncHandler(counselorController.getSessions));
+
+// GET  /api/v1/counselor/sessions/:id  — 单个会话详情
+router.get('/sessions/:id', asyncHandler(counselorController.getSession));
 
 // POST /api/v1/counselor/sessions      — 开始新会话
 router.post('/sessions', asyncHandler(counselorController.createSession));

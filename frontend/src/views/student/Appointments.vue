@@ -54,6 +54,13 @@
           <span class="reason-label">取消原因：</span>{{ apt.cancelReason }}
         </div>
 
+        <!-- 线上预约：视频咨询入口 -->
+        <div v-if="apt.type === 'online' && apt.status === 'confirmed'" class="meeting-banner">
+          <span class="meeting-icon">🎥</span>
+          <span class="meeting-hint">线上视频咨询</span>
+          <button class="btn-join" @click="joinVideo(apt)">加入视频咨询</button>
+        </div>
+
         <!-- 已评价展示 -->
         <div v-if="apt.session?.feedback" class="feedback-display">
           <span class="feedback-stars">{{ renderStars(apt.session.feedback.rating) }}</span>
@@ -169,7 +176,10 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { studentApi } from '@/api/student'
+
+const router = useRouter()
 
 const loading = ref(false)
 const list = ref([])
@@ -271,6 +281,14 @@ function switchTab(val) {
 function changePage(p) {
   page.value = p
   loadList()
+}
+
+function joinVideo(apt) {
+  const counselorName = apt.counselor?.counselorProfile?.realName || apt.counselor?.username || '咨询师'
+  router.push({
+    path: `/video/${apt.id}`,
+    query: { role: 'student', partner: counselorName },
+  })
 }
 
 function openCancelDialog(apt) {
@@ -506,6 +524,49 @@ h2 {
 .reason-label {
   font-weight: 500;
 }
+
+/* 线上预约会议链接 */
+.meeting-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.meeting-icon { font-size: 16px; }
+
+.meeting-hint {
+  color: #15803d;
+  font-weight: 500;
+  flex: 1;
+}
+
+.meeting-pending {
+  color: #94a3b8;
+  flex: 1;
+}
+
+.btn-join {
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-join:hover { background: #15803d; }
 
 /* 已评价展示 */
 .feedback-display {

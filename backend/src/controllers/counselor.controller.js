@@ -26,9 +26,23 @@ async function updateAppointment(req, res) {
   return success(res, result, '预约状态已更新');
 }
 
+async function setMeetingLink(req, res) {
+  const result = await counselorService.setMeetingLink(
+    req.user.id,
+    parseInt(req.params.id),
+    req.body.meetingLink
+  );
+  return success(res, result, '会议链接已更新');
+}
+
 async function getSessions(req, res) {
   const { status, page, pageSize } = req.query;
   const result = await counselorService.getSessions(req.user.id, { status, page, pageSize });
+  return success(res, result);
+}
+
+async function getSession(req, res) {
+  const result = await counselorService.getSession(req.user.id, parseInt(req.params.id));
   return success(res, result);
 }
 
@@ -61,7 +75,9 @@ module.exports = {
   updateProfile,
   getAppointments,
   updateAppointment,
+  setMeetingLink,
   getSessions,
+  getSession,
   createSession,
   endSession,
   createNote,

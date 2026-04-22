@@ -196,6 +196,31 @@ async function createAnnouncement(authorId, { title, content, targetRole, isPinn
 }
 
 /**
+ * 更新公告（编辑内容 / 发布草稿）
+ */
+async function updateAnnouncement(announcementId, { title, content, targetRole, isPinned, publish, expiresAt }) {
+  const announcement = await Announcement.findByPk(announcementId);
+  if (!announcement) {
+    const err = new Error('公告不存在');
+    err.status = 404;
+    throw err;
+  }
+
+  const updates = {};
+  if (title !== undefined) updates.title = title;
+  if (content !== undefined) updates.content = content;
+  if (targetRole !== undefined) updates.targetRole = targetRole;
+  if (isPinned !== undefined) updates.isPinned = isPinned ? 1 : 0;
+  if (expiresAt !== undefined) updates.expiresAt = expiresAt || null;
+  if (publish === true && !announcement.publishedAt) {
+    updates.publishedAt = new Date();
+  }
+
+  await announcement.update(updates);
+  return announcement.toJSON();
+}
+
+/**
  * 删除公告
  */
 async function deleteAnnouncement(announcementId) {
@@ -305,6 +330,7 @@ module.exports = {
   updateCounselorStatus,
   getAnnouncements,
   createAnnouncement,
+  updateAnnouncement,
   deleteAnnouncement,
   getCounselorAppointmentStats,
   getStudentAppointmentStats,

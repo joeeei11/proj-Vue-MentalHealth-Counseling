@@ -65,6 +65,11 @@ const Appointment = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: null,
     },
+    meetingLink: {
+      type: DataTypes.STRING(500),
+      defaultValue: null,
+      field: 'meeting_link',
+    },
   },
   {
     tableName: 'appointments',

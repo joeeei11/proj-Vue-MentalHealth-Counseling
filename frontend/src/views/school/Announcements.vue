@@ -39,11 +39,20 @@
               <span v-if="a.expiresAt">过期：{{ formatDt(a.expiresAt) }}</span>
             </div>
           </div>
-          <button
-            class="btn-del"
-            :disabled="deletingId === a.id"
-            @click="askDelete(a)"
-          >删除</button>
+          <div class="ann-actions">
+            <button class="btn-edit" @click="openEdit(a)">编辑</button>
+            <button
+              v-if="!a.publishedAt"
+              class="btn-publish"
+              :disabled="publishingId === a.id"
+              @click="quickPublish(a)"
+            >{{ publishingId === a.id ? '发布中...' : '发布' }}</button>
+            <button
+              class="btn-del"
+              :disabled="deletingId === a.id"
+              @click="askDelete(a)"
+            >删除</button>
+          </div>
         </div>
       </div>
 
@@ -106,6 +115,57 @@
       </div>
     </div>
 
+    <!-- 编辑公告弹窗 -->
+    <div v-if="showEdit" class="modal-mask" @click.self="showEdit = false">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>编辑公告</h3>
+          <button class="close-btn" @click="showEdit = false">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-item">
+            <label>标题 <span class="required">*</span></label>
+            <input v-model="editForm.title" placeholder="公告标题" />
+          </div>
+          <div class="form-item">
+            <label>内容 <span class="required">*</span></label>
+            <textarea v-model="editForm.content" rows="5" placeholder="公告内容..."></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-item">
+              <label>目标受众</label>
+              <select v-model="editForm.targetRole">
+                <option value="all">全部</option>
+                <option value="student">仅学生</option>
+                <option value="counselor">仅咨询师</option>
+              </select>
+            </div>
+            <div class="form-item">
+              <label>过期时间</label>
+              <input v-model="editForm.expiresAt" type="datetime-local" />
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="editForm.isPinned" />
+              置顶公告
+            </label>
+            <label v-if="!editTarget?.publishedAt" class="checkbox-label">
+              <input type="checkbox" v-model="editForm.publish" />
+              保存后立即发布
+            </label>
+          </div>
+          <p v-if="editError" class="error-text">{{ editError }}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="showEdit = false">取消</button>
+          <button class="btn-primary" :disabled="editing" @click="submitEdit">
+            {{ editing ? '保存中...' : (editForm.publish ? '保存并发布' : '保存修改') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 删除确认弹窗 -->
     <div v-if="deleteTarget" class="modal-mask" @click.self="deleteTarget = null">
       <div class="modal modal-sm">
@@ -151,6 +211,13 @@ const showCreate = ref(false)
 const creating = ref(false)
 const createError = ref('')
 const form = ref({ title: '', content: '', targetRole: 'all', isPinned: false, publish: true, expiresAt: '' })
+
+const showEdit = ref(false)
+const editing = ref(false)
+const editError = ref('')
+const editTarget = ref(null)
+const editForm = ref({ title: '', content: '', targetRole: 'all', isPinned: false, publish: false, expiresAt: '' })
+const publishingId = ref(null)
 
 const deleteTarget = ref(null)
 const deletingId = ref(null)
@@ -228,6 +295,63 @@ async function submitCreate() {
     createError.value = e.response?.data?.message || e.message || '提交失败'
   } finally {
     creating.value = false
+  }
+}
+
+function openEdit(ann) {
+  editTarget.value = ann
+  editError.value = ''
+  const expiresRaw = ann.expiresAt
+    ? new Date(ann.expiresAt).toISOString().slice(0, 16)
+    : ''
+  editForm.value = {
+    title: ann.title,
+    content: ann.content,
+    targetRole: ann.targetRole || 'all',
+    isPinned: !!ann.isPinned,
+    publish: false,
+    expiresAt: expiresRaw,
+  }
+  showEdit.value = true
+}
+
+async function submitEdit() {
+  editError.value = ''
+  if (!editForm.value.title.trim() || !editForm.value.content.trim()) {
+    editError.value = '标题和内容为必填项'
+    return
+  }
+  editing.value = true
+  try {
+    const payload = {
+      title: editForm.value.title.trim(),
+      content: editForm.value.content.trim(),
+      targetRole: editForm.value.targetRole,
+      isPinned: editForm.value.isPinned,
+      publish: editForm.value.publish,
+      expiresAt: editForm.value.expiresAt || undefined,
+    }
+    await schoolApi.updateAnnouncement(editTarget.value.id, payload)
+    showEdit.value = false
+    showToast(editForm.value.publish ? '公告已更新并发布' : '公告已更新')
+    await loadList()
+  } catch (e) {
+    editError.value = e.response?.data?.message || e.message || '保存失败'
+  } finally {
+    editing.value = false
+  }
+}
+
+async function quickPublish(ann) {
+  publishingId.value = ann.id
+  try {
+    await schoolApi.updateAnnouncement(ann.id, { publish: true })
+    showToast('公告已发布')
+    await loadList()
+  } catch (e) {
+    showToast(e.response?.data?.message || e.message || '发布失败')
+  } finally {
+    publishingId.value = null
   }
 }
 
@@ -378,8 +502,44 @@ h3 {
 .badge-draft     { background: #f1f5f9; color: #94a3b8; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .badge-target    { background: #ede9fe; color: #7c3aed; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 
-.btn-del {
+.ann-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   flex-shrink: 0;
+  align-items: stretch;
+}
+
+.btn-edit {
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #bfdbfe;
+  background: #fff;
+  color: #2563eb;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-edit:hover { background: #eff6ff; }
+
+.btn-publish {
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #6ee7b7;
+  background: #fff;
+  color: #059669;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-publish:hover:not(:disabled) { background: #ecfdf5; }
+.btn-publish:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-del {
   font-size: 12px;
   padding: 5px 12px;
   border-radius: 6px;
@@ -389,7 +549,6 @@ h3 {
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s;
-  align-self: flex-start;
 }
 
 .btn-del:hover:not(:disabled) { background: #fef2f2; }

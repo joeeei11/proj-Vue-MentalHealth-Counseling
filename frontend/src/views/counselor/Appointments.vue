@@ -67,8 +67,12 @@
             </button>
           </template>
           <template v-if="apt.status === 'confirmed'">
-            <button class="btn-session" @click="startSession(apt)" :disabled="sessionStarting === apt.id">
-              {{ sessionStarting === apt.id ? '开始中...' : '开始会话' }}
+            <button
+              :class="apt.type === 'online' ? 'btn-video' : 'btn-session'"
+              @click="startSession(apt)"
+              :disabled="sessionStarting === apt.id"
+            >
+              {{ sessionStarting === apt.id ? '开始中...' : (apt.type === 'online' ? '🎥 开始视频咨询' : '开始会话') }}
             </button>
           </template>
         </div>
@@ -138,6 +142,7 @@ const rejectDialog = reactive({
   apt: null,
   reason: '',
 })
+
 
 const tabs = [
   { label: '全部', value: '' },
@@ -242,18 +247,23 @@ async function confirmReject() {
 async function startSession(apt) {
   sessionStarting.value = apt.id
   try {
-    // appointments.type ENUM: 'online'/'offline'
-    // sessions.type ENUM: 'individual'/'online'
-    // 'offline' 线下面谈 → 'individual' 个体咨询；'online' 保持不变
     const sessionType = apt.type === 'online' ? 'online' : 'individual'
     const res = await counselorApi.createSession({
       appointmentId: apt.id,
       studentId: apt.student?.id,
       type: sessionType,
     })
-    showToast('会话已开始')
     const session = res.data
-    router.push({ path: `/counselor/sessions/${session.id}`, state: { session } })
+    if (apt.type === 'online') {
+      const studentName = apt.student?.studentProfile?.realName || apt.student?.username || '学生'
+      router.push({
+        path: `/video/${apt.id}`,
+        query: { role: 'counselor', sessionId: session.id, partner: studentName },
+      })
+    } else {
+      showToast('会话已开始')
+      router.push({ path: `/counselor/sessions/${session.id}`, state: { session } })
+    }
   } catch (e) {
     showToast(e.message || '开始会话失败')
   } finally {
@@ -426,6 +436,7 @@ h2 {
   font-weight: 500;
 }
 
+
 .apt-actions {
   display: flex;
   gap: 8px;
@@ -491,6 +502,20 @@ h2 {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.btn-video {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 7px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-video:hover:not(:disabled) { opacity: 0.88; }
+.btn-video:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .pagination {
   display: flex;

@@ -13,6 +13,7 @@ export const schoolApi = {
   // 公告管理
   getAnnouncements: (params) => request.get('/api/v1/school/announcements', { params }),
   createAnnouncement: (data) => request.post('/api/v1/school/announcements', data),
+  updateAnnouncement: (id, data) => request.put(`/api/v1/school/announcements/${id}`, data),
   deleteAnnouncement: (id) => request.delete(`/api/v1/school/announcements/${id}`),
 
   // 图表统计

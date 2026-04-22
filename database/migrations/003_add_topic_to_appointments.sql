@@ -2,7 +2,7 @@
 -- 为 appointments 表添加结构化话题字段，用于管理端话题分布统计
 
 ALTER TABLE appointments
-  ADD COLUMN IF NOT EXISTS topic ENUM(
+  ADD COLUMN topic ENUM(
     'academic_pressure',
     'relationship_issues',
     'interpersonal',
